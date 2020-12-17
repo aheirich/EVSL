@@ -2841,9 +2841,9 @@ if test "x$evsl_using_Ccompiler" = "xyes" -a "x$CFLAGS" = "x"
 then
    if test "x$evsl_with_debug" = "xyes"
    then
-      CFLAGS="-g -O0 -Wall "
+      CFLAGS="-std=c++03 -g -O0 -Wall "
    else
-      CFLAGS="-O2 -Wall "
+      CFLAGS="-std=c++03 -O2 -Wall "
    fi
 fi
 
@@ -2897,9 +2897,9 @@ if test "x$evsl_with_fortran" = "xyes" -a "x$FCFLAGS" = "x"
 then
    if test "x$evsl_with_debug" = "xyes"
    then
-      CFLAGS="-g -O0 "
+      CFLAGS="-std=c++03 -g -O0 "
    else
-      FCFLAGS="-O2 "
+      FCFLAGS="-std=c++03 -O2 "
    fi
 fi
 
@@ -3633,15 +3633,15 @@ if test "$ac_test_CFLAGS" = set; then
   CFLAGS=$ac_save_CFLAGS
 elif test $ac_cv_prog_cc_g = yes; then
   if test "$GCC" = yes; then
-    CFLAGS="-g -O2"
+    CFLAGS="-std=c++03 -g -O2"
   else
-    CFLAGS="-g"
+    CFLAGS="-std=c++03 -g"
   fi
 else
   if test "$GCC" = yes; then
-    CFLAGS="-O2"
+    CFLAGS="-std=c++03 -O2"
   else
-    CFLAGS=
+    CFLAGS="-std=c++03"
   fi
 fi
 { $as_echo "$as_me:${as_lineno-$LINENO}: checking for $CC option to accept ISO C89" >&5
@@ -4917,15 +4917,15 @@ if test "$ac_test_CXXFLAGS" = set; then
   CXXFLAGS=$ac_save_CXXFLAGS
 elif test $ac_cv_prog_cxx_g = yes; then
   if test "$GXX" = yes; then
-    CXXFLAGS="-g -O2"
+    CXXFLAGS="-std=c++03 -g -O2"
   else
-    CXXFLAGS="-g"
+    CXXFLAGS="-std=c++03 -g"
   fi
 else
   if test "$GXX" = yes; then
-    CXXFLAGS="-O2"
+    CXXFLAGS="-std=c++03 -O2"
   else
-    CXXFLAGS=
+    CXXFLAGS="-std=c++03"
   fi
 fi
 ac_ext=c
@@ -5694,9 +5694,9 @@ done
    EVSL_CUDA_GENCODE="-gencode arch=compute_${EVSL_CUDA_SM},\"code=sm_${EVSL_CUDA_SM}\""
    if test "x$evsl_with_debug" = "xyes"
    then
-      CUFLAGS+="-g -O0 ${EVSL_CUDA_GENCODE} -dc --x cu"
+      CUFLAGS+="-std=c++03 -g -O0 ${EVSL_CUDA_GENCODE} -dc --x cu"
    else
-      CUFLAGS+="-O2 ${EVSL_CUDA_GENCODE} -dc --x cu"
+      CUFLAGS+="-std=c++03 -O2 ${EVSL_CUDA_GENCODE} -dc --x cu"
    fi
    CFLAGS="${CUFLAGS} -Xcompiler \"${CFLAGS}\""
    LDFLAGS="${EVSL_CUDA_GENCODE} -Xcompiler \"${LDFLAGS}\""

@@ -6,9 +6,11 @@
 #include "evsl.h"
 #include "io.h"
 
-#define TRIV_SLICER 0
+#define TRIV_SLICER 1
 
 int main () {
+  double tStart, tEnd;
+  double t0, t1, t2, t3, t4, t5;
   int ierr = 0;
   /*--------------------------------------------------------------
    * this tests the spectrum slicing idea for a generic matrix
@@ -115,6 +117,12 @@ int main () {
       fprintf(flog, "HB FORMAT  not supported (yet) * \n");
       exit(7);
     }
+
+
+
+    tStart = evsl_timer();
+
+
 #ifdef EVSL_USING_CUDA_GPU
     /*-------------------- set matrix A (csr on GPU) */
     csrMat Acsr_gpu;
@@ -124,6 +132,11 @@ int main () {
     /*-------------------- set the left-hand side matrix A */
     SetAMatrix(&Acsr);
 #endif
+
+    t0 = evsl_timer();
+    fprintf(flog, "create A matrix time = %15.2f\n", t0 - tStart);
+
+
     /*-------------------- define ChebLanTr parameters */
     alleigs = evsl_Malloc(n, double);
     vinit = evsl_Malloc_device(n, double);
@@ -140,16 +153,24 @@ int main () {
     //-------------------- landos or triv_slicer
     if (TRIV_SLICER) {
       linspace(a, b, n_intv+1,  sli);
+      ecount = 5; // added ABH
     } else {
       double t = evsl_timer();
       npts = 100*n_intv;
       xdos = evsl_Malloc(npts, double);
       ydos = evsl_Malloc(npts, double);
 
+
+    t1 = evsl_timer();
+
       //fprintf(stdout," %d %d \n",npts,n_intv);
       LanDos(nvec, Mdeg, npts, xdos, ydos, &ecount, xintv);
       //fprintf(stdout," %f \n",ecount);
       t = evsl_timer() - t;
+
+    t2 = evsl_timer();
+    fprintf(flog, "LanDos time = %15.2f\n", t2 - t1);
+
 
       fprintf(fstats, " Time to build DOS (Landos) was : %10.2f  \n",t);
       fprintf(fstats, " estimated eig count in interval: %.15e \n",ecount);
@@ -179,8 +200,12 @@ int main () {
     //-------------------- # eigs per slice
     //-------------------- approximate number of eigenvalues wanted
     double fac = 1.2;   // this factor ensures that # of eigs per slice is slightly overestimated
+#if 1
     nev = (int) (1 + ecount / ((double) n_intv));  // # eigs per slice
     nev = (int)(fac*nev);                        // want an overestimate of ev_int
+#else
+    nev = 3;//only need three smallest eigenpairs
+#endif
     fprintf(fstats,"Step 2: In each slice compute %d eigenvalues ... \n", nev);
     /*-------------------- MAIN intv LOOP: for each sclice Do: */
     totcnt = 0;
@@ -206,10 +231,20 @@ int main () {
       pol.thresh_int = 0.8;    // change thresholds for getting a sharper
       pol.thresh_ext = 0.2;   // [higher deg] polynomial
       //-------------------- Now determine polymomial
+
+    t3 = evsl_timer();
+
       find_pol(xintv, &pol);
 
       fprintf(fstats, " polynomial [type = %d], deg %d, bar %e gam %e\n",
               pol.type, pol.deg, pol.bar, pol.gam);
+
+    t4 = evsl_timer();
+    fprintf(flog, "find_pol time = %15.2f\n", t4 - t3);
+
+
+
+
       //-------------------- Call ChebLanNr
       ierr = ChebLanNr(xintv, mlan, tol, vinit, &pol, &nevOut, &lam, &Y,
                        &res, fstats);
@@ -217,6 +252,11 @@ int main () {
         printf("ChebLanNr error %d\n", ierr);
         return 1;
       }
+
+    t5 = evsl_timer();
+    fprintf(flog, "CheLanNr time = %15.2f\n", t5 - t4);
+
+
       /* sort the eigenvals: ascending order
        * ind: keep the orginal indices */
       ind = evsl_Malloc(nevOut, int);
@@ -251,6 +291,14 @@ int main () {
       free_pol(&pol);
       /*-------------------- end slice loop */
     }
+
+
+    tEnd = evsl_timer();
+    fprintf(flog, "Eigenvalue/vector time = %15.2f\n", tEnd - tStart);
+
+
+
+
     fprintf(fstats," --> Total eigenvalues found = %d\n",totcnt);
     sprintf(path, "OUT/EigsOut_PLanN_%s", io.MatNam1);
     FILE *fmtout = fopen(path,"w");

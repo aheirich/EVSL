@@ -47,9 +47,9 @@ int main(int argc, char *argv[]) {
   nx   = 16;
   ny   = 16;
   nz   = 20;
-  a    = 0.4;
-  b    = 0.8;
-  nslices = 4;
+  a    = 0.0;
+  b    = 0.5;
+  nslices = 1;
   //-----------------------------------------------------------------------
   //-------------------- reset some default values from command line
   /* user input from command line */
@@ -86,6 +86,9 @@ int main(int argc, char *argv[]) {
   fprintf(fstats, "Interval: [%20.15f, %20.15f]  -- %d slices \n", a, b, nslices);
   /*-------------------- generate 2D/3D Laplacian matrix
    *                     saved in coo format */
+
+double tStart = evsl_timer();
+
   ierr = lapgen(nx, ny, nz, &Acoo);
   /*-------------------- convert coo to csr */
   ierr = cooMat_to_csrMat(0, &Acoo, &Acsr);
@@ -187,6 +190,7 @@ int main(int argc, char *argv[]) {
     printf(" subinterval: [%.4e , %.4e]\n", a, b);
     //-------------------- approximate number of eigenvalues wanted
     nev = ev_int+2;
+nev = 2;
     //-------------------- Dimension of Krylov subspace
     mlan = evsl_max(5*nev, 300);
     mlan = evsl_min(mlan, n);
@@ -226,6 +230,9 @@ int main(int argc, char *argv[]) {
     /* compute exact eigenvalues */
     exeiglap3(nx, ny, nz, a, b, &nev_ex, &lam_ex);
     printf(" number of eigenvalues: %d, found: %d\n", nev_ex, nev2);
+
+double tEnd = evsl_timer();
+fprintf(fstats, "Total time %15.2f\n", tEnd - tStart);
 
     /* print eigenvalues */
     fprintf(fstats, "                                   Eigenvalues in [a, b]\n");
