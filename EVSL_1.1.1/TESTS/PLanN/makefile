@@ -5,7 +5,7 @@ EXTRA = ../COMMON/io.o ../COMMON/mmio.o ../COMMON/lapl.o
 
 # Object files
 OBJS_L          = LapPLanN.o         $(EXTRA)
-OBJS_MM         = MMPLanN.o          $(EXTRA)
+OBJS_MM         = MMPLanN.o spmv_csr_example.o         $(EXTRA)
 OBJS_PN_MatFree = LapPLanN_MatFree.o $(EXTRA)
 
 LIB = -L${EVSL_BUILD_DIR}/lib -levsl

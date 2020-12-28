@@ -6,6 +6,10 @@
 #include "evsl.h"
 #include "io.h"
 
+extern "C" {
+    void spmv_csr(csrMat* A, double* vinit);
+}
+
 #define TRIV_SLICER 1
 
 int main () {
@@ -119,7 +123,6 @@ int main () {
     }
 
 
-
     tStart = evsl_timer();
 
 
@@ -141,6 +144,15 @@ int main () {
     alleigs = evsl_Malloc(n, double);
     vinit = evsl_Malloc_device(n, double);
     rand_double_device(n, vinit);
+
+
+
+    spmv_csr(&Acsr, vinit);
+
+
+
+
+
     /*-------------------- get lambda_min lambda_max estimates */
     ierr = LanTrbounds(50, 200, 1e-8, vinit, 1, &lmin, &lmax, fstats);
     fprintf(fstats, "Step 0: Eigenvalue bounds for A: [%.15e, %.15e]\n", lmin, lmax);
@@ -328,4 +340,3 @@ int main () {
 
   return 0;
 }
-
